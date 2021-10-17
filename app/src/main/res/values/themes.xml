@@ -1,0 +1,33 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.SeminarDAM_Teme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/silver_200</item>
+        <item name="colorPrimaryVariant">@color/silver_700</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/aquamarine_200</item>
+        <item name="colorSecondaryVariant">@color/aquamarine_700</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Font Settings. -->
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="fontFamily">@font/amazon_ember_family</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorLink">@color/royalblue_200</item>
+        <item name="android:textColorHint">@color/silver_700</item>
+        <item name="fontWeight">100</item>
+        <!-- Tint Settings. -->
+        <item name="backgroundTint">#00000000</item>
+        <item name="backgroundTintMode">add</item>
+        <item name="buttonTint">#00000000</item>
+        <item name="buttonTintMode">add</item>
+        <item name="android:hapticFeedbackEnabled">false</item>
+        <item name="android:accessibilityFeedbackType">feedbackAudible</item>
+        <!-- Control Styles. -->
+        <item name="android:radioButtonStyle">@style/basic_radio_button</item>
+        <item name="android:checkboxStyle">@style/basic_check_box</item>
+        <item name="android:editTextStyle">@style/edit_text</item>
+    </style>
+</resources>

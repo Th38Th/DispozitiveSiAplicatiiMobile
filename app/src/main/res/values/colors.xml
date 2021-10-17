@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="silver_200">#FFEFEFEF</color>
+    <color name="silver_300">#FFCFCFCF</color>
+    <color name="silver_700">#FF7F7F7F</color>
+    <color name="sand_200">#FFFFDD80</color>
+    <color name="sand_700">#FFEEBB50</color>
+    <color name="fire_200">#FFF06500</color>
+    <color name="fire_700">#FFFF5500</color>
+    <color name="ochre_200">#FFDC9500</color>
+    <color name="ochre_700">#FFA06000</color>
+    <color name="aquamarine_200">#FF009966</color>
+    <color name="aquamarine_700">#FF00CC99</color>
+    <color name="royalblue_200">#FF4169E1</color>
+    <color name="royalblue_700">#FF002366</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
