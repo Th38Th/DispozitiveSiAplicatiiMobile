@@ -8,4 +8,12 @@
         android:fontStyle="italic"
         android:fontWeight="400"
         android:font="@font/amazon_ember_rgit" />
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        android:font="@font/amazon_ember_he" />
+    <font
+        android:fontStyle="italic"
+        android:fontWeight="700"
+        android:font="@font/amazon_ember_heit" />
 </font-family>

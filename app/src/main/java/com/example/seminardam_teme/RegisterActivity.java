@@ -1,24 +1,24 @@
 package com.example.seminardam_teme;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.Intent;
-import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
+import android.util.Patterns;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CalendarView;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,17 +27,12 @@ import com.example.seminardam_teme.editTextValidators.EditTextValidatorMultiple;
 import com.example.seminardam_teme.editTextValidators.EditTextValidatorSingle;
 import com.example.seminardam_teme.editTextValidators.QuickRegex;
 
-import java.text.DateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAccessor;
-import java.time.temporal.TemporalField;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -45,7 +40,7 @@ import java.util.regex.Pattern;
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText ettName;
-    private EditText ettEmail;
+    private EditText ettPhoneOrEmail;
     private EditText ettPass;
     private EditText ettPassCfm;
 
@@ -54,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
     private CalendarView cdDob;
     private Spinner spCountry;
 
-    private long currentDob;
+    private Date currentDob;
 
     private final double MILLIS_YEAR = 1 / 31556926000.0;
 
@@ -77,14 +72,14 @@ public class RegisterActivity extends AppCompatActivity {
             actBar.hide();
 
         ettName = findViewById(R.id.etNewAccountName);
-        ettEmail = findViewById(R.id.etNewAccountPhoneEmail);
+        ettPhoneOrEmail = findViewById(R.id.etNewAccountPhoneEmail);
         ettPass = findViewById(R.id.etNewAccountPassword);
         ettPassCfm = findViewById(R.id.etNewAccountPasswordCfm);
 
-        Bundle bdl = getIntent().getExtras();
-        if (bdl != null){
+        Bundle bdl = getIntent().getBundleExtra("register_info");
+        if (bdl != null) {
             ettName.setText(bdl.getString("name"));
-            ettEmail.setText(bdl.getString("email"));
+            ettPhoneOrEmail.setText(bdl.getString("phone_or_email"));
             ettPass.setText(bdl.getString("pwd"));
         }
 
@@ -96,28 +91,46 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegisterNewAcc);
 
         cdDob.setDate(cdDob.getDate() - (long)(18 / MILLIS_YEAR));
-        currentDob = cdDob.getDate();
+        currentDob = new Date(cdDob.getDate());
 
         Locale[] locales = Locale.getAvailableLocales();
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, locales) {
-            public Object getItem(int position)
-            {
-                return locales[position].getDisplayCountry();
+        ArrayAdapter<Locale> adapter = new ArrayAdapter<Locale>(this, android.R.layout.simple_spinner_item,locales) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                TextView tv = ((TextView) v);
+                tv.setText(locales[position].getDisplayCountry());
+                return v;
             }
 
-            public int getCount()
-            {
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                TextView tv = ((TextView) v);
+                tv.setText(locales[position].getDisplayCountry());
+                return v;
+            }
+
+            @Nullable
+            @Override
+            public Locale getItem(int position) {
+                return locales[position];
+            }
+
+            @Override
+            public int getCount() {
                 return locales.length;
             }
         };
         spCountry.setAdapter(adapter);
 
         Map<Pattern, String> theMap = new LinkedHashMap<>();
-        theMap.put(QuickRegex.email, null);
-        theMap.put(QuickRegex.phone, null);
+        theMap.put(Patterns.EMAIL_ADDRESS, null);
+        theMap.put(Patterns.PHONE, null);
 
         EditTextValidatorMultiple email_v = new EditTextValidatorMultiple (
-                ettEmail,
+                ettPhoneOrEmail,
                 "Please input a valid email address or phone number.",
                 theMap, EditTextValidatorMultiple.RegexChainingMode.XOR
         );
@@ -181,9 +194,9 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         cdDob.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-                currentDob = new GregorianCalendar(year,month,dayOfMonth,0,0,0).getTime().getTime();
+                currentDob = new GregorianCalendar(year,month,dayOfMonth,0,0,0).getTime();
                 tvCdErr.setText(
-                        checkAge(currentDob)?
+                        checkAge(currentDob.getTime())?
                                 null : "Age must be at least 18 years old!"
                 );
         });
@@ -191,7 +204,7 @@ public class RegisterActivity extends AppCompatActivity {
         passwd_v.enable();
 
         btnRegister.setOnClickListener((v) -> {
-            if (checkAge(currentDob)){
+            if (checkAge(currentDob.getTime())){
                 if (spCountry.getSelectedItem() == null){
                     Toast.makeText(this,"Please select your country!",Toast.LENGTH_LONG).show();
                     spCountry.requestFocus();
@@ -200,10 +213,26 @@ public class RegisterActivity extends AppCompatActivity {
                             email_v.isValid() &&
                             passwd_v.isValid() &&
                             ettPass.getText().toString().equals(ettPassCfm.getText().toString())) {
-                        Intent dashbd = new Intent(RegisterActivity.this, DashboardActivity.class);
-                        dashbd.putExtra("name", ettName.getText().toString());
-                        dashbd.putExtra("email", ettEmail.getText().toString());
-                        startActivity(dashbd);
+                        User registered_user = new User();
+                        registered_user.setName(ettName.getText().toString());
+                        String phoneOrEmail = ettPhoneOrEmail.getText().toString();
+                        if (Patterns.PHONE.matcher(phoneOrEmail).matches())
+                            registered_user.setPhone(ettPhoneOrEmail.getText().toString());
+                        else if (Patterns.EMAIL_ADDRESS.matcher(phoneOrEmail).matches())
+                            registered_user.setEmail(ettPhoneOrEmail.getText().toString());
+                        try {
+                            registered_user.setPwdHash(MessageDigest.getInstance("SHA-256").digest(ettPass.getText().toString().getBytes(StandardCharsets.UTF_8)));
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                        }
+                        registered_user.setDateOfBirth(currentDob);
+                        registered_user.setCountryOrRegion((Locale)spCountry.getSelectedItem());
+                        Intent raspuns = new Intent(RegisterActivity.this, DashboardActivity.class);
+                        Bundle wrapper = new Bundle();
+                        wrapper.putSerializable("utilizator", registered_user);
+                        raspuns.putExtra("raspuns", wrapper);
+                        setResult(RESULT_OK, raspuns);
+                        finish();
                     }
                     else {
                         Toast.makeText(this,"Please check your personal info!",Toast.LENGTH_LONG).show();

@@ -8,6 +8,18 @@
     android:theme="@style/Theme.SeminarDAM_Teme"
     tools:context=".DashboardActivity">
 
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        android:layout_marginTop="60dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/icn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars[1]" />
+
     <TextView
         android:id="@+id/tViewWelc"
         android:layout_width="0dp"
@@ -26,24 +38,6 @@
         app:layout_constraintTop_toBottomOf="@+id/imageButton" />
 
     <TextView
-        android:id="@+id/tViewEmail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="195dp"
-        android:fontFamily="@font/amazon_ember_family"
-        android:padding="10dp"
-        android:textAlignment="center"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tViewName" />
-
-    <TextView
         android:id="@+id/tViewName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -60,16 +54,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewWelc" />
 
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="175dp"
-        android:layout_height="175dp"
-        android:layout_marginTop="60dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/icn"
+    <TextView
+        android:id="@+id/tViewEmail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/amazon_ember_family"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars[1]" />
+        app:layout_constraintTop_toBottomOf="@id/tViewName" />
+
+    <TextView
+        android:id="@+id/tViewPhone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/amazon_ember_family"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewEmail" />
+
+    <TextView
+        android:id="@+id/tViewAgeAndCountry"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewPhone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

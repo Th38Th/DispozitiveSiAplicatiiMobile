@@ -27,4 +27,7 @@
     <string name="acc_cfm_pwd">Confirm password</string>
     <string name="lbl_country">Choose your country:</string>
     <string name="acc_create_btn">Register</string>
+    <string name="str_age_and_locale_display">%1$d years old, from %2$s</string>
+    <string name="str_fmt_email"><b>E-mail:</b> %1$s</string>
+    <string name="str_fmt_phone"><b>Tel.:</b> %1$s</string>
 </resources>

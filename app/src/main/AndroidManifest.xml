@@ -16,7 +16,7 @@
             android:name=".CustomActionBarActivity"
             android:exported="true" />
         <activity
-            android:name=".LoginStep2"
+            android:name=".LoginActivity"
             android:exported="true" />
         <activity
             android:name=".DashboardActivity"
