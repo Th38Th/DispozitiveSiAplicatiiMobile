@@ -28,5 +28,6 @@
         <item name="android:radioButtonStyle">@style/basic_radio_button</item>
         <item name="android:checkboxStyle">@style/basic_check_box</item>
         <item name="android:editTextStyle">@style/edit_text</item>
+        <item name="android:searchViewStyle">@style/search_view</item>
     </style>
 </resources>

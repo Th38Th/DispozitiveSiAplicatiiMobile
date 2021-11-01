@@ -30,4 +30,11 @@
     <string name="str_age_and_locale_display">%1$d years old, from %2$s</string>
     <string name="str_fmt_email"><b>E-mail:</b> %1$s</string>
     <string name="str_fmt_phone"><b>Tel.:</b> %1$s</string>
+    <string name="str_shop_btn">Shop Now!</string>
+    <string name="str_store_msg">Browse our store housing over %1$d products!</string>
+    <string name="hint_srch">Search by name, tags and more!</string>
+    <string name="str_price_min">Min price</string>
+    <string name="str_price_max">Max price</string>
+    <string name="str_btn_checkout">Checkout</string>
+    <string name="str_add_to_cart">Add to Cart</string>
 </resources>

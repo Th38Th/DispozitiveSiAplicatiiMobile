@@ -1,9 +1,13 @@
 package com.example.seminardam_teme;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.widget.AppCompatButton;
 
 public class DashboardActivity extends CustomActionBarActivity {
 
@@ -11,6 +15,7 @@ public class DashboardActivity extends CustomActionBarActivity {
     private TextView tvPhone;
     private TextView tvName;
     private TextView tvAgeAndCountry;
+    private AppCompatButton btnShopNow;
 
     private User usr;
 
@@ -23,11 +28,20 @@ public class DashboardActivity extends CustomActionBarActivity {
         tvPhone = findViewById(R.id.tViewPhone);
         tvName = findViewById(R.id.tViewName);
         tvAgeAndCountry = findViewById(R.id.tViewAgeAndCountry);
+        btnShopNow = findViewById(R.id.btnShopNow);
 
         Bundle bdl = getIntent().getBundleExtra("user_info");
         if (bdl != null) {
             usr = (User) bdl.getSerializable("utilizator");
         }
+
+        btnShopNow.setOnClickListener((o) -> {
+            Intent store = new Intent(DashboardActivity.this, StoreActivity.class);
+            Bundle usrDataBundle = new Bundle();
+            usrDataBundle.putSerializable("user",usr);
+            store.putExtra("userData", usrDataBundle);
+            startActivity(store);
+        });
     }
 
     @Override
