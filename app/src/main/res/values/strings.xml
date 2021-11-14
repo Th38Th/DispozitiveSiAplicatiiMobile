@@ -37,4 +37,7 @@
     <string name="str_price_max">Max price</string>
     <string name="str_btn_checkout">Checkout</string>
     <string name="str_add_to_cart">Add to Cart</string>
+    <string name="fmt_pret">&lt;b>Pret: &lt;/b>%.2f</string>
+    <string name="fmt_desc">&lt;b>"&lt;/b>%1$s&lt;b>"&lt;/b></string>
+    <string name="str_loading_p">Loading product list, please wait...</string>
 </resources>

@@ -9,4 +9,10 @@
         <attr name="colorOfQuantity" format="color" />
         <attr name="colorOfText" format="color" />
     </declare-styleable>
+    <declare-styleable name="LoadingIndicator">
+        <attr name="messageTextAppearance" format="reference"/>
+        <attr name="statusTextAppearance" format="reference"/>
+        <attr name="squareProgressIndicator" format="boolean"/>
+        <attr name="progressBarTint" format="color"/>
+    </declare-styleable>
 </resources>

@@ -3,6 +3,8 @@ package com.example.seminardam_teme;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,29 +12,38 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.AnyRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.StringDef;
+import androidx.annotation.StringRes;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import org.w3c.dom.Text;
+
 import java.util.List;
 import java.util.Locale;
 
 public class MagazinAdapter extends BaseAdapter {
 
     private List<Produs> lista;
-    private String fmtDenumire;
-    private String fmtPret;
-    private String fmtDescriere;
+    private int fmtDenumire;
+    private int fmtPret;
+    private int fmtDescriere;
 
     private static final String FMT_DENUMIRE_DEFAULT = "%s";
     private static final String FMT_PRET_DEFAULT = "Pret: %.2f";
     private static final String FMT_DESCRIERE_DEFAULT = "\"%s\"";
 
-    public MagazinAdapter(List<Produs> lista, String fmtDenumire, String fmtPret, String fmtDescriere) {
+    public MagazinAdapter(List<Produs> lista, @StringRes int fmtDenumire, @StringRes int fmtPret, @StringRes int fmtDescriere) {
         this.lista = lista;
-        this.fmtDenumire = (fmtDenumire!=null && fmtDenumire.contains("%"))? fmtDenumire : FMT_DENUMIRE_DEFAULT;
-        this.fmtPret = (fmtPret!=null && fmtPret.contains("%"))? fmtPret : FMT_PRET_DEFAULT;
-        this.fmtDescriere = (fmtDescriere!=null && fmtDescriere.contains("%"))? fmtDenumire : FMT_DESCRIERE_DEFAULT;
+        this.fmtDenumire = fmtDenumire;
+        this.fmtPret = fmtPret;
+        this.fmtDescriere = fmtDescriere;
     }
 
     public MagazinAdapter(List<Produs> lista) {
-        this(lista, FMT_DENUMIRE_DEFAULT, FMT_PRET_DEFAULT, FMT_DESCRIERE_DEFAULT);
+        this(lista, 0, 0, 0);
     }
 
     @Override
@@ -50,24 +61,46 @@ public class MagazinAdapter extends BaseAdapter {
         return 0;
     }
 
+    private static class ViewHolder {
+        final TextView tvNume;
+        final TextView tvPret;
+        final TextView tvDesc;
+        final ImageView ivImg;
+
+        public ViewHolder(TextView tvNume, TextView tvPret, TextView tvDesc, ImageView ivImg) {
+            this.tvNume = tvNume;
+            this.tvPret = tvPret;
+            this.tvDesc = tvDesc;
+            this.ivImg = ivImg;
+        }
+
+        static ViewHolder from(View v){
+            TextView tvNume = v.findViewById(R.id.tvDenProd);
+            TextView tvPret = v.findViewById(R.id.tvPretProd);
+            TextView tvDesc = v.findViewById(R.id.tvDescProd);
+            ImageView ivImg = v.findViewById(R.id.ivProdus);
+            return new ViewHolder(tvNume,tvPret,tvDesc,
+                    ivImg);
+        }
+    }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Context ctx = parent.getContext();
-        String pkg = ctx.getPackageName();
-        LayoutInflater infl = LayoutInflater.from(parent.getContext());
-        View itemView = infl.inflate(R.layout.product_item, parent, false);
-        //ImageView i_img = itemView.findViewById(R.id.ivProdus);
-        TextView t_nume = itemView.findViewById(R.id.tvDenProd);
-        TextView t_pret = itemView.findViewById(R.id.tvPretProd);
-        TextView t_desc = itemView.findViewById(R.id.tvDescProd);
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater infl = LayoutInflater.from(parent.getContext());
+            convertView = infl.inflate(R.layout.product_item, parent, false);
+            holder = ViewHolder.from(convertView);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        Log.v("getView","called GetView()");
         Produs current = lista.get(position);
-        //i_img.setImageDrawable(current.getImagine());
-        int fmtDen_id = ctx.getResources().getIdentifier(fmtDenumire, "string", pkg);
-        t_nume.setText(fmtDen_id==0? String.format(fmtDenumire,current.getDenumire()) : ctx.getResources().getString(fmtDen_id, current.getDenumire()));
-        int fmtPret_id = ctx.getResources().getIdentifier(fmtPret, "string", pkg);
-        t_pret.setText(fmtPret_id==0? String.format(fmtPret,current.getPret()) : ctx.getResources().getString(fmtPret_id, current.getPret()));
-        int fmtDesc_id = ctx.getResources().getIdentifier(fmtDescriere, "string", pkg);
-        t_desc.setText(fmtDesc_id==0? String.format(fmtDescriere,current.getDescriere()) : ctx.getResources().getString(fmtDesc_id, current.getDescriere()));
-        return itemView;
+        Context ctx = parent.getContext();
+        holder.tvNume.setText(fmtDenumire==0? String.format(FMT_DENUMIRE_DEFAULT,current.getDenumire()) : Html.fromHtml(ctx.getResources().getString(fmtDenumire, current.getDenumire())));
+        holder.tvPret.setText(fmtPret==0? String.format(ctx.getResources().getConfiguration().locale,FMT_PRET_DEFAULT,current.getPret()) : Html.fromHtml(ctx.getResources().getString(fmtPret, current.getPret())));
+        holder.tvDesc.setText(fmtDescriere==0? String.format(FMT_DESCRIERE_DEFAULT,current.getDescriere()) : Html.fromHtml(ctx.getResources().getString(fmtDescriere, current.getDescriere())));
+        holder.ivImg.setImageBitmap(current.getImagine());
+        return convertView;
     }
 }

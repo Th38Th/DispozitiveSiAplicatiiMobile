@@ -3,20 +3,23 @@ package com.example.seminardam_teme;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
-import java.math.BigDecimal;
-
-public class QuantityView extends FrameLayout {
+public class QuantityView extends ConstraintLayout {
     private ImageView ivSub;
-    private TextView tvQty;
+    private EditText etQty;
     private ImageView ivAdd;
 
     // Atribute
@@ -31,123 +34,145 @@ public class QuantityView extends FrameLayout {
 
     public QuantityView(@NonNull Context context) {
         super(context);
-        init();
+        initizalizare();
     }
 
     public QuantityView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
         citireAtributeStiluri(context, attrs, 0);
+        initizalizare();
     }
 
     public QuantityView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
         citireAtributeStiluri(context, attrs, defStyleAttr);
+        initizalizare();
     }
 
-    private void init() {
-        inflate(getContext(), R.layout.quantity_view, this);
+    private void initizalizare() {
+        LayoutInflater l_infl = LayoutInflater.from(getContext());
+        l_infl.inflate(R.layout.quantity_view, this, true);
         ivSub = findViewById(R.id.ivSub);
-        tvQty = findViewById(R.id.tvQty);
+        etQty = findViewById(R.id.etQty);
         ivAdd = findViewById(R.id.ivAdd);
         ivSub.setOnClickListener((v) -> modificareCantitate(-deltaCantitate));
         ivAdd.setOnClickListener((v) -> modificareCantitate(deltaCantitate));
-        configurareView();
+        etQty.addTextChangedListener(new TextWatcher() {
+
+            private boolean isEditing = false;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!isEditing) {
+                    isEditing = true;
+                    int qte;
+                    try {
+                        qte = Integer.parseInt(s.toString());
+                    } catch (NumberFormatException nfe) {
+                        qte = cantitateMinima;
+                    }
+                    setCantitate(qte);
+                    String newQteString = String.valueOf(getCantitate());
+                    if (!s.toString().equals(newQteString))
+                        s.replace(0, s.length(), newQteString);
+                    isEditing = false;
+                }
+            }
+        });
+        etQty.setTextColor(ContextCompat.getColor(getContext(), textColorRes));
+        setDoarContur(doarContur);
+        setCantitate(cantitateInitiala);
     }
 
     private void citireAtributeStiluri(Context context, AttributeSet attrs, int defStyleAttr) {
-        if (attrs != null) {
-            TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.QuantityView, defStyleAttr, 0);
-            cantitateMinima = typedArray.getInteger(R.styleable.QuantityView_minQuantity, 0);
-            cantitateMaxima = typedArray.getInteger(R.styleable.QuantityView_maxQuantity, 100);
-            cantitateInitiala = typedArray.getInteger(R.styleable.QuantityView_startQuantity, 0);
-            deltaCantitate = typedArray.getInteger(R.styleable.QuantityView_deltaQuantity, 10);
-            colorRes = typedArray.getResourceId(R.styleable.QuantityView_colorOfQuantity, R.color.black);
-            textColorRes = typedArray.getResourceId(R.styleable.QuantityView_colorOfText, R.color.black);
-            doarContur = typedArray.getBoolean(R.styleable.QuantityView_isOutlined, true);
-            return;
-        }
-        cantitateMinima = 0;
-        cantitateMaxima = 100;
-        cantitateInitiala = 0;
-        deltaCantitate = 10;
-        colorRes = R.color.black;
-        textColorRes = R.color.black;
-        doarContur = true;
-    }
-
-    private void configurareView() {
-        if (!doarContur) {
-            ivAdd.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_plus_button));
-            ivSub.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_minus_button));
-        } else {
-            ivAdd.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_plus_button_outl));
-            ivSub.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_minus_button_outl));
-        }
-        if (cantitateInitiala <= cantitateMinima) {
-            cantitateCurenta = cantitateMinima;
-            ivSub.setEnabled(false);
-            ivAdd.setEnabled(true);
-            configurareCulori(false, true);
-        } else if (cantitateInitiala >= cantitateMaxima) {
-            cantitateCurenta = cantitateMaxima;
-            ivSub.setEnabled(true);
-            ivAdd.setEnabled(false);
-            configurareCulori(true, false);
-        } else {
-            cantitateCurenta = cantitateInitiala;
-            ivSub.setEnabled(true);
-            ivAdd.setEnabled(true);
-            configurareCulori(true, true);
-        }
-        tvQty.setText(Integer.toString(cantitateCurenta));
-    }
-
-    private void configurareCulori(boolean isSubtractEnabled, boolean isAddEnabled) {
-        int disabledColor = ContextCompat.getColor(getContext(), R.color.material_on_surface_disabled);
-        int color = ContextCompat.getColor(getContext(), colorRes);
-        if (color != ContextCompat.getColor(getContext(), R.color.black)) {
-            ivAdd.getDrawable().setColorFilter(isAddEnabled ? color : disabledColor, PorterDuff.Mode.SRC_ATOP);
-            tvQty.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-            ivSub.getDrawable().setColorFilter(isSubtractEnabled ? color : disabledColor, PorterDuff.Mode.SRC_ATOP);
-        }
-        int textColor = ContextCompat.getColor(getContext(), textColorRes);
-        if (textColor != ContextCompat.getColor(getContext(), R.color.black)) {
-            tvQty.setTextColor(textColor);
-        }
-    }
-
-    private void modificareCantitate(int delta){
-        int cant_noua = cantitateCurenta + delta;
-        if (cant_noua > cantitateMinima && cant_noua < cantitateMaxima){
-            cantitateCurenta = cant_noua;
-            if (!ivAdd.isEnabled()) modifyViewClickable(true, false);
-            if (!ivSub.isEnabled()) modifyViewClickable(true, true);
+        if (attrs == null) {
+            cantitateMinima = 0;
+            cantitateMaxima = 100;
+            cantitateInitiala = 0;
+            deltaCantitate = 10;
+            colorRes = R.color.aquamarine_700;
+            textColorRes = R.color.black;
+            doarContur = false;
         }
         else {
-            if (cant_noua <= cantitateMinima){
-                cantitateCurenta = cantitateMinima;
-                modifyViewClickable(false, true);
-            }
-            else if (cant_noua >= cantitateMaxima){
-                cantitateCurenta = cantitateMaxima;
-                modifyViewClickable(false, false);
+            TypedArray typedArray = null;
+            try {
+                typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.QuantityView, defStyleAttr, 0);
+                cantitateMinima = typedArray.getInteger(R.styleable.QuantityView_minQuantity, 0);
+                cantitateMaxima = typedArray.getInteger(R.styleable.QuantityView_maxQuantity, 100);
+                cantitateInitiala = typedArray.getInteger(R.styleable.QuantityView_startQuantity, 0);
+                deltaCantitate = typedArray.getInteger(R.styleable.QuantityView_deltaQuantity, 10);
+                colorRes = typedArray.getResourceId(R.styleable.QuantityView_colorOfQuantity, R.color.aquamarine_700);
+                textColorRes = typedArray.getResourceId(R.styleable.QuantityView_colorOfText, R.color.black);
+                doarContur = typedArray.getBoolean(R.styleable.QuantityView_isOutlined, true);
+            } catch (Exception e) {
+                Log.e("QuantityView", e.getMessage());
+            } finally {
+                if (typedArray != null)
+                    typedArray.recycle();
             }
         }
-        tvQty.setText(Integer.toString(cantitateCurenta));
     }
 
-    private void modifyViewClickable(boolean isEnabled, boolean isSubtract) {
-        int defColor = isEnabled ? colorRes : R.color.material_on_surface_disabled;
-        int color = ContextCompat.getColor(getContext(), defColor);
-        if (isSubtract) {
-            ivSub.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-            ivSub.setEnabled(isEnabled);
-            return;
+    public void setDoarContur(boolean doar_contur) {
+        doarContur = doar_contur;
+        if (doarContur) {
+            ivAdd.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_plus_button_outl));
+            ivSub.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_minus_button_outl));
+        } else {
+            ivAdd.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_plus_button));
+            ivSub.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_minus_button));
         }
-        ivAdd.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        ivAdd.setEnabled(isEnabled);
+    }
+
+    private boolean cantitateValida(int qte) {
+        return cantitateMinima <= qte && qte <= cantitateMaxima;
+    }
+
+    public void setButtonsEnabled(boolean enableSubtract, boolean enableAdd) {
+
+        int enabledColor = ContextCompat.getColor(getContext(), colorRes);
+        int disabledColor = ContextCompat.getColor(getContext(), R.color.material_on_surface_disabled);
+
+        int subColor = enableSubtract? enabledColor : disabledColor;
+        ivSub.getDrawable().setColorFilter(subColor, PorterDuff.Mode.SRC_ATOP);
+        ivSub.setEnabled(enableSubtract);
+
+        int addColor = enableAdd? enabledColor : disabledColor;
+        ivAdd.getDrawable().setColorFilter(addColor, PorterDuff.Mode.SRC_ATOP);
+        ivAdd.setEnabled(enableAdd);
+
+    }
+
+    public void setCantitate(int cantitateNoua) {
+        if (cantitateValida(cantitateNoua)) {
+            cantitateCurenta = cantitateNoua;
+        } else {
+            if (cantitateNoua < cantitateMinima)
+                cantitateCurenta = cantitateMinima;
+            else if (cantitateNoua > cantitateMaxima)
+                cantitateCurenta = cantitateMaxima;
+        }
+        setButtonsEnabled(
+                cantitateCurenta > cantitateMinima,
+                cantitateCurenta < cantitateMaxima
+        );
+        etQty.setText(Integer.toString(cantitateCurenta));
+        Log.v("qtyView","qtyChanged");
+    }
+
+    public void modificareCantitate(int delta) {
+        int cant_noua = cantitateCurenta + delta;
+        setCantitate(cant_noua);
     }
 
     public int getCantitate() {

@@ -1,15 +1,17 @@
 package com.example.seminardam_teme;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 
 public class Produs {
-    private Drawable imagine;
+    private Bitmap imagine;
     private String denumire;
     private float pret;
     private String descriere;
 
-    public Produs(String nume, float pret, String descriere, Drawable imagine) {
+    public Produs(String nume, float pret, String descriere, Bitmap imagine) {
         this.denumire = nume;
         this.pret = pret;
         this.descriere = descriere;
@@ -54,11 +56,11 @@ public class Produs {
                 '}';
     }
 
-    public Drawable getImagine() {
+    public Bitmap getImagine() {
         return imagine;
     }
 
-    public void setImagine(Drawable imagine) {
+    public void setImagine(Bitmap imagine) {
         this.imagine = imagine;
     }
 }
