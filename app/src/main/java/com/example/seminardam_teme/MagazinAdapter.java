@@ -1,8 +1,9 @@
 package com.example.seminardam_teme;
 
-import android.app.Application;
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,38 +13,50 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.AnyRes;
-import androidx.annotation.IdRes;
-import androidx.annotation.StringDef;
 import androidx.annotation.StringRes;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
-import org.w3c.dom.Text;
+import com.example.seminardam_teme.model.Produs;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-import java.util.Locale;
 
 public class MagazinAdapter extends BaseAdapter {
+
+    public List<Produs> getLista() {
+        return lista;
+    }
+
+    public void setLista(List<Produs> lista) {
+        if (lista != this.lista) {
+            this.lista = lista;
+            notifyDataSetChanged();
+        }
+    }
 
     private List<Produs> lista;
     private int fmtDenumire;
     private int fmtPret;
     private int fmtDescriere;
 
+    private ContextProvider ctxpvdr;
+
     private static final String FMT_DENUMIRE_DEFAULT = "%s";
     private static final String FMT_PRET_DEFAULT = "Pret: %.2f";
     private static final String FMT_DESCRIERE_DEFAULT = "\"%s\"";
 
-    public MagazinAdapter(List<Produs> lista, @StringRes int fmtDenumire, @StringRes int fmtPret, @StringRes int fmtDescriere) {
+    public MagazinAdapter(List<Produs> lista, ContextProvider ctxpvdr, @StringRes int fmtDenumire, @StringRes int fmtPret, @StringRes int fmtDescriere) {
         this.lista = lista;
+        this.ctxpvdr = ctxpvdr;
         this.fmtDenumire = fmtDenumire;
         this.fmtPret = fmtPret;
         this.fmtDescriere = fmtDescriere;
     }
 
-    public MagazinAdapter(List<Produs> lista) {
-        this(lista, 0, 0, 0);
+    public MagazinAdapter(List<Produs> lista, ContextProvider ctxpvdr) {
+        this(lista, ctxpvdr, 0, 0, 0);
     }
 
     @Override
@@ -94,13 +107,21 @@ public class MagazinAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        Log.v("getView","called GetView()");
         Produs current = lista.get(position);
-        Context ctx = parent.getContext();
+        Context ctx = ctxpvdr.getContext();
         holder.tvNume.setText(fmtDenumire==0? String.format(FMT_DENUMIRE_DEFAULT,current.getDenumire()) : Html.fromHtml(ctx.getResources().getString(fmtDenumire, current.getDenumire())));
         holder.tvPret.setText(fmtPret==0? String.format(ctx.getResources().getConfiguration().locale,FMT_PRET_DEFAULT,current.getPret()) : Html.fromHtml(ctx.getResources().getString(fmtPret, current.getPret())));
         holder.tvDesc.setText(fmtDescriere==0? String.format(FMT_DESCRIERE_DEFAULT,current.getDescriere()) : Html.fromHtml(ctx.getResources().getString(fmtDescriere, current.getDescriere())));
-        holder.ivImg.setImageBitmap(current.getImagine());
+        new Thread(()-> {
+            try (InputStream istr = new URL(current.getUrlImagine()).openStream()) {
+                Bitmap bmp = BitmapFactory.decodeStream(istr);
+                ((Activity)ctx).runOnUiThread(()->holder.ivImg.setImageBitmap(bmp));
+            } catch (MalformedURLException mfe) {
+                Log.e("loadImage", "Failed to load image from url \"" + current.getUrlImagine() + "\"");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
         return convertView;
     }
 }

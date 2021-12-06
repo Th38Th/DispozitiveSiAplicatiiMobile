@@ -6,8 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.AppCompatButton;
+
+import com.example.seminardam_teme.model.User;
 
 public class DashboardActivity extends CustomActionBarActivity {
 

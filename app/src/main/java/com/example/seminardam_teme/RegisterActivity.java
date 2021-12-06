@@ -23,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.seminardam_teme.model.User;
 import com.example.seminardam_teme.editTextValidators.EditTextValidatorMultiple;
 import com.example.seminardam_teme.editTextValidators.EditTextValidatorSingle;
 import com.example.seminardam_teme.editTextValidators.QuickRegex;

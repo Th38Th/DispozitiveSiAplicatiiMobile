@@ -39,5 +39,14 @@
     <string name="str_add_to_cart">Add to Cart</string>
     <string name="fmt_pret">&lt;b>Pret: &lt;/b>%.2f</string>
     <string name="fmt_desc">&lt;b>"&lt;/b>%1$s&lt;b>"&lt;/b></string>
-    <string name="str_loading_p">Loading product list, please wait...</string>
+    <string name="str_loading_p">Loading product list, please wait…</string>
+    <string name="fmt_status_li_default">%1$d&lt;b> / &lt;/b>%2$d</string>
+    <string name="fmt_status_li_percent">%1$d&lt;b>%%&lt;/b></string>
+    <string name="str_identical_user_err">ERROR: An account using this email address/phone number already exists</string>
+    <string name="str_invalid_cred_err">ERROR: Invalid credentials!</string>
+    <string name="str_invalid_em_ph_err">Please input a valid email address or phone number.</string>
+    <string name="str_min_chars_req_err">Minimum %1$d characters required!</string>
+    <string name="str_phone_email_prompt">Please input your email address or phone number!</string>
+    <string name="str_pwd_prompt">Please input your password!</string>
+    <string name="str_api_fail_err">Loading from API failed... Populating list with default values.</string>
 </resources>

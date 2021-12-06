@@ -41,11 +41,11 @@ public class LoginActivity extends AppCompatActivity {
         signIn.setOnClickListener((v) -> {
             String eml = ettPhoneOrEmail.getText().toString(), pwd = ettPasswd.getText().toString();
             if (eml.equals("")) {
-                Toast.makeText(LoginActivity.this, "Please input your email address!", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, R.string.str_phone_email_prompt, Toast.LENGTH_LONG).show();
                 return;
             }
             if (pwd.equals("")) {
-                Toast.makeText(LoginActivity.this, "Please input your password!", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, R.string.str_pwd_prompt, Toast.LENGTH_LONG).show();
                 return;
             }
             Intent raspuns = new Intent(LoginActivity.this, DashboardActivity.class);

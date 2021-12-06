@@ -1,6 +1,4 @@
-package com.example.seminardam_teme;
-
-import android.app.Person;
+package com.example.seminardam_teme.model;
 
 import androidx.annotation.NonNull;
 
@@ -9,15 +7,37 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
+import com.example.seminardam_teme.MainActivity;
+
+
+@Entity (tableName = "utilizatori")
 public class User implements Serializable {
+
+    @PrimaryKey (autoGenerate = true)
+    private int id;
+    @ColumnInfo(name="nume_utilizator")
     private String name;
+    @ColumnInfo(name="email_utilizator")
     private String email;
+    @ColumnInfo(name="telefon_utilizator")
     private String phone;
+    @ColumnInfo(name="hash_parola")
     private byte[] pwdHash;
+    @ColumnInfo(name="data_nasterii")
+    @TypeConverters(DateConverter.class)
     private Date dateOfBirth;
+    @ColumnInfo(name = "locale")
+    @TypeConverters(LocaleConverter.class)
     private Locale countryOrRegion;
+    @ColumnInfo(name = "is_online")
     private boolean online;
-    public User(String name, String phone, String email, byte[] pwd_hash, Date dob, Locale country_or_region) {
+    public User(int id, String name, String phone, String email, byte[] pwd_hash, Date dob, Locale country_or_region) {
+        this.id = id;
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -31,6 +51,14 @@ public class User implements Serializable {
 
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -38,7 +66,6 @@ public class User implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-
 
     public String getEmail() {
         return email;
@@ -85,16 +112,6 @@ public class User implements Serializable {
         return (long)(Math.floor(today - dateOfBirth.getTime()) * MainActivity.MILLIS_YEAR);
     }
 
-    public boolean logIn(String email, String phone, byte[] pwdHash){
-        if ((email != null && email.equals(this.email))
-                || (phone != null && phone.equals(this.phone))
-                && Arrays.equals(pwdHash, this.pwdHash)) {
-            online = true;
-            return true;
-        }
-        return false;
-    }
-
     public void logOut() {
         online = false;
     }
@@ -110,5 +127,13 @@ public class User implements Serializable {
                 ", dob=" + dateOfBirth +
                 ", country_or_region=" + countryOrRegion +
                 '}';
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 }

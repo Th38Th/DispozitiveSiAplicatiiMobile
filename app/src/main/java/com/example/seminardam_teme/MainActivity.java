@@ -1,6 +1,5 @@
 package com.example.seminardam_teme;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,11 +8,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.CheckBox;
@@ -23,19 +20,20 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import com.example.seminardam_teme.model.Database;
+import com.example.seminardam_teme.model.User;
 import com.example.seminardam_teme.editTextValidators.*;
+import com.example.seminardam_teme.model.UserDAO;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final double MILLIS_YEAR = 1 / 31556926000.0;
 
-    private List<User> listaUtilizatori;
+    private UserDAO userDao;
 
     // Cele doua request code-uri
     private final int REGISTER_REQUEST_CODE = 0x73FB;
@@ -59,24 +57,9 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout extraOptList;
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable("utilizatori", listaUtilizatori.toArray(new User[0]));
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        listaUtilizatori = Arrays.asList((User[])savedInstanceState.getSerializable("utilizatori"));
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (listaUtilizatori == null)
-            listaUtilizatori = new ArrayList<>();
 
         ActionBar actBar = getSupportActionBar();
         if (actBar != null)
@@ -91,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
         };
 
         for (TextView t : lst) t.setMovementMethod(LinkMovementMethod.getInstance());
+
+        Database userDB = Database.getInstance(this);
+        userDao = userDB.getDataBase().userDAO();
 
         rbRegister = findViewById(R.id.rbRegister);
         frmRegister = findViewById(R.id.frmCreateAcc);
@@ -117,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         EditTextValidatorMultiple emailVerifRegister = new EditTextValidatorMultiple (
                 tbRegisterEmailPhone,
-                "Please input a valid email address or phone number.",
+                getResources().getString(R.string.str_invalid_em_ph_err),
                 theMap, EditTextValidatorMultiple.RegexChainingMode.XOR
         );
 
@@ -125,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
         EditTextValidatorMultiple emailVerifSignIn = new EditTextValidatorMultiple (
                 tbSignInEmailPhone,
-                "Please input a valid email address or phone number.",
+                getResources().getString(R.string.str_invalid_em_ph_err),
                 theMap, EditTextValidatorMultiple.RegexChainingMode.XOR
         );
 
@@ -133,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
         EditTextValidatorSingle name_evs = new EditTextValidatorSingle(
                 tbRegisterName,
-                "Minimum 3 characters required!",
+                getResources().getString(R.string.str_min_chars_req_err, 3),
                 QuickRegex.atLeast(3)
         );
 
@@ -141,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
         EditTextValidatorSingle passwd_evs = new EditTextValidatorSingle(
                 tbRegisterPass,
-                "Minimum 6 characters required!",
+                getResources().getString(R.string.str_min_chars_req_err, 6),
                 QuickRegex.atLeast(6)
         );
 
@@ -169,13 +155,22 @@ public class MainActivity extends AppCompatActivity {
             if (name_evs.isValid()
                     && emailVerifRegister.isValid()
                     && passwd_evs.isValid()) {
-                Intent registerAcc = new Intent(MainActivity.this, RegisterActivity.class);
-                Bundle initial_info = new Bundle();
-                initial_info.putString("name", tbRegisterName.getText().toString());
-                initial_info.putString("phone_or_email", tbRegisterEmailPhone.getText().toString());
-                initial_info.putString("pwd", tbRegisterPass.getText().toString());
-                registerAcc.putExtra("register_info", initial_info);
-                startActivityForResult(registerAcc, REGISTER_REQUEST_CODE);
+                String ph_eml = tbRegisterEmailPhone.getText().toString();
+                new Thread(()->{
+                if (userDao.getIdenticalUser(ph_eml) == null) {
+                    Intent registerAcc = new Intent(MainActivity.this, RegisterActivity.class);
+                    Bundle initial_info = new Bundle();
+                    initial_info.putString("name", tbRegisterName.getText().toString());
+                    initial_info.putString("phone_or_email", ph_eml);
+                    initial_info.putString("pwd", tbRegisterPass.getText().toString());
+                    registerAcc.putExtra("register_info", initial_info);
+                    startActivityForResult(registerAcc, REGISTER_REQUEST_CODE);
+                } else {
+                    runOnUiThread(()->{
+                        Toast.makeText(MainActivity.this, R.string.str_identical_user_err, Toast.LENGTH_LONG).show();
+                    });
+                }
+                }).start();
             }
         });
 
@@ -200,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                     if (data != null) {
                         Bundle raspuns = data.getBundleExtra("raspuns");
                         User user = (User) raspuns.getSerializable("utilizator");
-                        listaUtilizatori.add(user);
+                        new Thread(()->userDao.insert(user)).start();
                         tbRegisterName.getText().clear();
                         tbRegisterEmailPhone.getText().clear();
                         tbRegisterPass.getText().clear();
@@ -211,34 +206,29 @@ public class MainActivity extends AppCompatActivity {
                         else if (user.getPhone() != null)
                             ph_eml = user.getPhone();
                         tbSignInEmailPhone.setText(ph_eml);
-                        Toast.makeText(MainActivity.this, "Registration Successful!", Toast.LENGTH_LONG).show();
-                        Toast.makeText(MainActivity.this, "Registered " + user.toString(), Toast.LENGTH_LONG).show();
                     }
                 }
                 break;
             case LOGIN_REQUEST_CODE:
                 if (resultCode == RESULT_OK){
                     if (data != null) {
-                        User login_usr = null;
                         String user_id = data.getStringExtra("phone_or_email");
                         byte[] pwd_hash = data.getByteArrayExtra("hash_parola");
-                        for (User u : listaUtilizatori) {
-                            if (u.logIn(user_id, user_id, pwd_hash)) {
-                               login_usr = u;
-                               break;
+                        new Thread(()->{
+                            User login_usr = userDao.matchCredentials(user_id, user_id, user_id, pwd_hash);
+                            if (login_usr != null) {
+                                Intent dashBd = new Intent(MainActivity.this, DashboardActivity.class);
+                                Bundle login_info = new Bundle();
+                                login_info.putSerializable("utilizator", login_usr);
+                                dashBd.putExtra("user_info",login_info);
+                                startActivity(dashBd);
                             }
-                        }
-                        if (login_usr != null) {
-                            Intent dashBd = new Intent(MainActivity.this, DashboardActivity.class);
-                            Bundle login_info = new Bundle();
-                            login_info.putSerializable("utilizator", login_usr);
-                            dashBd.putExtra("user_info",login_info);
-                            startActivity(dashBd);
-                            Toast.makeText(MainActivity.this, "Login Successful!", Toast.LENGTH_LONG).show();
-                            Toast.makeText(MainActivity.this, "Logged in "+login_usr.toString(), Toast.LENGTH_LONG).show();
-                        }
-                        else
-                            Toast.makeText(MainActivity.this, "ERROR: Invalid credentials!", Toast.LENGTH_LONG).show();
+                            else {
+                                runOnUiThread(()->
+                                        Toast.makeText(MainActivity.this, R.string.str_invalid_cred_err, Toast.LENGTH_LONG).show()
+                                );
+                            }
+                        }).start();
                     }
                 }
                 break;

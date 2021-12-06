@@ -8,14 +8,12 @@
 
     <TextView
         android:id="@+id/tvLoadingMsg"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         android:text="WOQFIWQFIQWFIWQg"
         android:textAlignment="viewStart"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/clPbLayoutBox"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,8 +23,9 @@
         android:layout_height="0dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/tvLoadingMsg"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.Guideline
@@ -38,18 +37,20 @@
 
         <ProgressBar
             android:id="@+id/pbProgressIndicator"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginStart="8dp"
             android:indeterminate="false"
-            android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
             android:indeterminateOnly="false"
             android:indeterminateTint="@color/fire_200"
             android:indeterminateTintMode="src_in"
-            android:max="200"
-            android:progress="50"
+            android:max="100"
+            android:outlineProvider="none"
+            android:progress="25"
             android:progressDrawable="@android:drawable/progress_horizontal"
             android:progressTint="@color/aquamarine_200"
-            android:progressTintMode="src_atop"
+            android:progressTintMode="src_in"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

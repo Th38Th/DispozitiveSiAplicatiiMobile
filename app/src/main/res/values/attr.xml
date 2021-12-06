@@ -10,9 +10,19 @@
         <attr name="colorOfText" format="color" />
     </declare-styleable>
     <declare-styleable name="LoadingIndicator">
-        <attr name="messageTextAppearance" format="reference"/>
+        <attr name="currentTaskNameTextAppearance" format="reference"/>
+        <attr name="currentTaskName" format="string"/>
         <attr name="statusTextAppearance" format="reference"/>
+        <attr name="statusText" format="string"/>
         <attr name="squareProgressIndicator" format="boolean"/>
-        <attr name="progressBarTint" format="color"/>
+        <attr name="progressDrawable" format="reference"/>
+        <attr name="progressTint" format="reference"/>
+        <attr name="progress" format="integer"/>
+        <attr name="progressMax" format="integer"/>
+        <attr name="statusDisplayStyle" format="enum">
+            <enum name="DEFAULT" value="0"/>
+            <enum name="PERCENT" value="1"/>
+            <enum name="NONE" value="2"/>
+        </attr>
     </declare-styleable>
 </resources>

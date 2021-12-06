@@ -3,7 +3,7 @@ package com.example.seminardam_teme.json;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.example.seminardam_teme.Produs;
+import com.example.seminardam_teme.model.Produs;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,7 +60,6 @@ public class JsonReader {
 
     private List<Produs> parse(String jsonString, String root, IResponse<List<Produs>> rsp) {
         List<Produs> lista = new ArrayList<>();
-        Map<Produs, String> urlS = new HashMap<>();
         try
         {
             JSONArray arrayJson;
@@ -72,31 +71,18 @@ public class JsonReader {
             }
             for (int i = 0; i < arrayJson.length(); i++) {
                 JSONObject currentObject = arrayJson.getJSONObject(i);
+                int idProd = currentObject.getInt("id");
                 String numeProd = currentObject.getString("title");
                 double pretProd = currentObject.getDouble("price");
                 String descProd = currentObject.getString("description");
                 String urlPath = currentObject.getString("image");
-                Produs produs = new Produs(numeProd, (float)pretProd, descProd);
-                urlS.put(produs, urlPath);
+                Produs produs = new Produs(idProd, numeProd, (float)pretProd, descProd, urlPath);
                 lista.add(produs);
             }
         }
         catch (JSONException e) {
             e.printStackTrace();
         }
-        new Thread() {
-            public void run() {
-                for (Map.Entry<Produs, String> p: urlS.entrySet()) {
-                    try(InputStream istr = new URL(p.getValue()).openStream()){
-                        p.getKey().setImagine(BitmapFactory.decodeStream(istr));
-                    } catch (MalformedURLException mfe){
-                        Log.e("loadImage","Failed to load image from url \""+p.getValue()+"\"");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }.start();
         return lista;
     }
 }
