@@ -12,6 +12,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Base64;
 import android.util.Patterns;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import com.example.seminardam_teme.editTextValidators.QuickRegex;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -222,12 +224,14 @@ public class RegisterActivity extends AppCompatActivity {
                         else if (Patterns.EMAIL_ADDRESS.matcher(phoneOrEmail).matches())
                             registered_user.setEmail(ettPhoneOrEmail.getText().toString());
                         try {
-                            registered_user.setPwdHash(MessageDigest.getInstance("SHA-256").digest(ettPass.getText().toString().getBytes(StandardCharsets.UTF_8)));
+                            byte[] pwd_digest = MessageDigest.getInstance("SHA-256").digest(ettPass.getText().toString().getBytes(StandardCharsets.UTF_8));
+                            String pwd_hash = Base64.encodeToString(pwd_digest, Base64.NO_WRAP | Base64.NO_PADDING);
+                            registered_user.setPwdHash(pwd_hash);
                         } catch (NoSuchAlgorithmException e) {
                             e.printStackTrace();
                         }
                         registered_user.setDateOfBirth(currentDob);
-                        registered_user.setCountryOrRegion((Locale)spCountry.getSelectedItem());
+                        registered_user.setCountryOrRegion(((Locale)spCountry.getSelectedItem()).toLanguageTag());
                         Intent raspuns = new Intent(RegisterActivity.this, DashboardActivity.class);
                         Bundle wrapper = new Bundle();
                         wrapper.putSerializable("utilizator", registered_user);

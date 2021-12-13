@@ -1,5 +1,6 @@
 package com.example.seminardam_teme;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.CheckBox;
@@ -20,20 +22,41 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.example.seminardam_teme.model.Database;
+import com.example.seminardam_teme.model.LocaleConverter;
 import com.example.seminardam_teme.model.User;
 import com.example.seminardam_teme.editTextValidators.*;
 import com.example.seminardam_teme.model.UserDAO;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final double MILLIS_YEAR = 1 / 31556926000.0;
-
     private UserDAO userDao;
+
+    //
+    private FirebaseAuth auth;
 
     // Cele doua request code-uri
     private final int REGISTER_REQUEST_CODE = 0x73FB;
@@ -56,6 +79,52 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox cbHelp;
     private LinearLayout extraOptList;
 
+    private void syncWithDatabase() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference refUsers = database.getReference("users");
+        refUsers.addChildEventListener(new ChildEventListener() {
+
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                User loadedUsr = snapshot.getValue(User.class);
+                new Thread(()->userDao.insert(loadedUsr)).start();
+                Log.v("USER_CREATED", loadedUsr.toString());
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                User loadedUsr = snapshot.getValue(User.class);
+                new Thread(()->userDao.update(loadedUsr)).start();
+                Log.v("USER_MODIFIED", loadedUsr.toString());
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                User loadedUsr = snapshot.getValue(User.class);
+                new Thread(()->userDao.delete(loadedUsr)).start();
+                Log.v("USER_DELETED", loadedUsr.toString());
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                User loadedUsr = snapshot.getValue(User.class);
+                new Thread(()->userDao.update(loadedUsr)).start();
+                Log.v("USER_MOVED", loadedUsr.toString());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("USER_ERR", error.toString());
+            }
+        });
+    }
+
+    private void writeToDatabase(User usr) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference refUsers = database.getReference("users");
+        refUsers.push().setValue(usr);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
 
         Database userDB = Database.getInstance(this);
         userDao = userDB.getDataBase().userDAO();
+
+        auth = FirebaseAuth.getInstance();
+        auth.signInAnonymously().addOnCompleteListener(task -> syncWithDatabase());
 
         rbRegister = findViewById(R.id.rbRegister);
         frmRegister = findViewById(R.id.frmCreateAcc);
@@ -175,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnSignInContinue.setOnClickListener((v) -> {
+            new Thread(()->Log.v("usersNow", String.valueOf(userDao.getUsers().size()))).start();
             if (emailVerifSignIn.isValid()) {
                 Intent loginAct = new Intent(MainActivity.this, LoginActivity.class);
                 loginAct.putExtra("phone_or_email", tbSignInEmailPhone.getText().toString());
@@ -195,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
                     if (data != null) {
                         Bundle raspuns = data.getBundleExtra("raspuns");
                         User user = (User) raspuns.getSerializable("utilizator");
-                        new Thread(()->userDao.insert(user)).start();
+                        new Thread(()-> writeToDatabase(user)).start();
                         tbRegisterName.getText().clear();
                         tbRegisterEmailPhone.getText().clear();
                         tbRegisterPass.getText().clear();
@@ -213,7 +286,8 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK){
                     if (data != null) {
                         String user_id = data.getStringExtra("phone_or_email");
-                        byte[] pwd_hash = data.getByteArrayExtra("hash_parola");
+                        String pwd_hash = data.getStringExtra("hash_parola");
+                        Log.v("pwdHASH",pwd_hash);
                         new Thread(()->{
                             User login_usr = userDao.matchCredentials(user_id, user_id, user_id, pwd_hash);
                             if (login_usr != null) {

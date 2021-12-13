@@ -3,6 +3,7 @@ package com.example.seminardam_teme.model;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
@@ -13,6 +14,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import com.example.seminardam_teme.MainActivity;
+import com.google.firebase.database.Exclude;
 
 
 @Entity (tableName = "utilizatori")
@@ -27,16 +29,15 @@ public class User implements Serializable {
     @ColumnInfo(name="telefon_utilizator")
     private String phone;
     @ColumnInfo(name="hash_parola")
-    private byte[] pwdHash;
+    private String pwdHash;
     @ColumnInfo(name="data_nasterii")
     @TypeConverters(DateConverter.class)
     private Date dateOfBirth;
     @ColumnInfo(name = "locale")
-    @TypeConverters(LocaleConverter.class)
-    private Locale countryOrRegion;
+    private String countryOrRegion;
     @ColumnInfo(name = "is_online")
     private boolean online;
-    public User(int id, String name, String phone, String email, byte[] pwd_hash, Date dob, Locale country_or_region) {
+    public User(int id, String name, String phone, String email, String pwd_hash, Date dob, String country_or_region) {
         this.id = id;
         this.name = name;
         this.phone = phone;
@@ -83,11 +84,11 @@ public class User implements Serializable {
         this.phone = phone;
     }
 
-    public byte[] getPwdHash() {
+    public String getPwdHash() {
         return pwdHash;
     }
 
-    public void setPwdHash(byte[] pwdHash) {
+    public void setPwdHash(String pwdHash) {
         this.pwdHash = pwdHash;
     }
 
@@ -99,14 +100,15 @@ public class User implements Serializable {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Locale getCountryOrRegion() {
+    public String getCountryOrRegion() {
         return countryOrRegion;
     }
 
-    public void setCountryOrRegion(Locale countryOrRegion) {
+    public void setCountryOrRegion(String countryOrRegion) {
         this.countryOrRegion = countryOrRegion;
     }
 
+    @Exclude
     public long getAge() {
         long today = new Date().getTime();
         return (long)(Math.floor(today - dateOfBirth.getTime()) * MainActivity.MILLIS_YEAR);
@@ -123,7 +125,7 @@ public class User implements Serializable {
                 "name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
-                ", pwd_hash=" + Arrays.toString(pwdHash) +
+                ", pwd_hash=" + pwdHash +
                 ", dob=" + dateOfBirth +
                 ", country_or_region=" + countryOrRegion +
                 '}';

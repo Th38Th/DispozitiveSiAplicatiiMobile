@@ -10,6 +10,8 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.example.seminardam_teme.model.User;
 
+import java.util.Locale;
+
 public class DashboardActivity extends CustomActionBarActivity {
 
     private TextView tvEmail;
@@ -63,7 +65,7 @@ public class DashboardActivity extends CustomActionBarActivity {
                 tvPhone.setVisibility(View.GONE);
             tvName.setText(usr.getName());
             tvAgeAndCountry.setText(res.getString(R.string.str_age_and_locale_display, usr.getAge(),
-                    usr.getCountryOrRegion().getDisplayCountry()));
+                    Locale.forLanguageTag(usr.getCountryOrRegion()).getDisplayCountry()));
         }
     }
 

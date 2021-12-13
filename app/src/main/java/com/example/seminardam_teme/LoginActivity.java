@@ -6,6 +6,7 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -51,7 +52,9 @@ public class LoginActivity extends AppCompatActivity {
             Intent raspuns = new Intent(LoginActivity.this, DashboardActivity.class);
             raspuns.putExtra("phone_or_email", eml);
             try {
-                raspuns.putExtra("hash_parola", MessageDigest.getInstance("SHA-256").digest(pwd.getBytes(StandardCharsets.UTF_8)));
+                byte[] pwd_digest = MessageDigest.getInstance("SHA-256").digest(pwd.getBytes(StandardCharsets.UTF_8));
+                String pwd_hash = Base64.encodeToString(pwd_digest, Base64.NO_WRAP | Base64.NO_PADDING);
+                raspuns.putExtra("hash_parola", pwd_hash);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }

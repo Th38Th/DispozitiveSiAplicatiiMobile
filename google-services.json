@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "805078850261",
+    "firebase_url": "https://seminar-dam-teme-default-rtdb.firebaseio.com",
+    "project_id": "seminar-dam-teme",
+    "storage_bucket": "seminar-dam-teme.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805078850261:android:3e947d7e3db7715549e05c",
+        "android_client_info": {
+          "package_name": "com.example.seminardam_teme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "805078850261-mel7qffud27i8ca1t9q62h3qlu1l1p6h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxSUY306bNJjIGDpw0nYrTrB8owbGM_fI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "805078850261-mel7qffud27i8ca1t9q62h3qlu1l1p6h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

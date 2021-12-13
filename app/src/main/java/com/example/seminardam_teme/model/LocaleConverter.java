@@ -6,11 +6,11 @@ import java.util.Locale;
 
 public class LocaleConverter {
     @TypeConverter
-    public String localeToLanguageTag(Locale locale){
+    public static String localeToLanguageTag(Locale locale){
         return locale.toLanguageTag();
     }
     @TypeConverter
-    public Locale localeFromLanguageTag(String languageTag){
+    public static Locale localeFromLanguageTag(String languageTag){
         return Locale.forLanguageTag(languageTag);
     }
 }

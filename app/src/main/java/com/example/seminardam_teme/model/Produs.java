@@ -39,6 +39,10 @@ public class Produs {
         this(0, denumire, pret, descriere, null);
     }
 
+    public Produs(){
+
+    }
+
     public int getId() {
         return id;
     }
